@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">    
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Creator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            color: #333;
+        }
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        #resumeOutput {
+            background: #fff;
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 5px;
+            max-width: 600px;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <h1>Welcome to the Resume Creator</h1>
+    <p>Fill out the form below to create your resume.</p>
+    <form id="resumeForm">
+        <label for="firstName">First Name:</label>
+        <input type="text" id="firstName" name="firstName" required pattern="[A-Za-z]{2,}" title="First name must be at least 2 letters long and contain only letters.">
+        
+        <label for="lastName">Last Name:</label>
+        <input type="text" id="lastName" name="lastName" required pattern="[A-Za-z]{2,}" title="Last name must be at least 2 letters long and contain only letters.">
+
+        <label for="linkedin">LinkedIn:</label>
+        <input type="url" id="linkedin" name="linkedin" placeholder="https://linkedin.com/in/yourprofile">
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+        <input type="hidden" id="formType" name="formType" value="resume">
+
+        <label for="phone">Phone:</label>
+        <input type="tel" id="phone" name="phone" required pattern="^\d{3}-\d{3}-\d{4}$" title="Phone number format: 123-456-7890">
+
+        <label for="education">Education:</label>
+        <input type="text" id="education" name="education" required>
+
+        <label for="experience">Experience:</label>
+        <textarea id="experience" name="experience" rows="4" cols="50" required></textarea>
+
+        <label for="skills">Skills:</label>
+        <input type="text" id="skills" name="skills" required placeholder="e.g. JavaScript, HTML, CSS">  
+
+        <button type="submit">Create Resume</button>
+        <button type="reset">Reset</button>
+        <button type="button" onclick="window.location.reload();">Reload</button>
+        <button type="button" onclick="window.print();">Print</button>
+        <button type="button" id="downloadPdfBtn">Download PDF</button>
+    </form>
+    <div id="resumeOutput" style="max-width:600px;"></div>
+    <p>Thank you for using the Resume Creator!</p>
+    <footer>
+        <p>&copy; 2023 Resume Creator</p>
+    </footer>
+    <script>
+        function escapeHTML(str) {
+            return str.replace(/[&<>"']/g, function(m) {
+                return ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#39;'
+                })[m];
+            });
+        }
+
+        document.getElementById('resumeForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            let output = '<h2>Your Resume</h2><ul>';
+            formData.forEach((value, key) => {
+                output += `<li><strong>${escapeHTML(key)}:</strong> ${escapeHTML(value)}</li>`;
+            });
+            output += '</ul>';
+            document.getElementById('resumeOutput').innerHTML = output;
+            event.target.reset();
+            document.getElementById('resumeOutput').scrollIntoView({behavior: "smooth"});
+        });
+
+        // Генерация PDF
+        document.getElementById('downloadPdfBtn').addEventListener('click', function() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const resumeElement = document.getElementById('resumeOutput');
+            if (!resumeElement.innerText.trim()) {
+                alert('Please create your resume first!');
+                return;
+            }
+            doc.setFont('Arial', 'normal');
+            doc.setFontSize(16);
+            doc.setFontSize(14);
+            doc.text(resumeElement.innerText, 10, 20);
+            doc.save('resume.pdf');
+        });
+    </script>
+</body>
+</html>
